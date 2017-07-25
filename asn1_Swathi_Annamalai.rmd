@@ -1,0 +1,72 @@
+---
+title: "Assignment1 - Use ggplot on gem dataset to Classify Diamonds per price Ranking and Cut "
+author: "Swathi Annamalai"
+date: "2/17/2017"
+output: html_document
+---
+Import ggplot library for producing graphic plots on given diamonds dataset.
+Read the dataset from working directory. The rmd file is also stored in the same directory. 
+At the end of this section code, we just print "diamond" to check the dataset import.
+```{r}
+library (ggplot2)
+diamond <- read.delim("ddset.tsv")
+```
+
+The code below is used to generate 3 different categories for diamonds in the dataset based on price.
+The price ranking is defined as price:
+◦ up to the 15th percentile: Lowest
+◦ 16th to the 30th percentile: Moderate ◦ 31st to the 75th percentile: Higher
+◦ above 75th percentile: Expensive
+Print to check values of the variables created - lowest, moderate, higher
+```{r}
+lowest <- quantile((diamond$price), probs = c(0.15))
+moderate <- quantile((diamond$price), probs = c(0.30))
+higher <- quantile((diamond$price), probs = c(0.75))
+print (c(lowest,moderate,higher))
+```
+Add a column "Ranking" the diamond dataset and initialize to NA
+```{r}
+diamond$Ranking <- NA
+```
+
+Fill in values for the new variable "Ranking", assign numbers from 1-4 based on the price category.
+If the price >0 and <=lowest; assign Ranking = 1
+If price >lowest and <=moderate; assign Ranking = 2
+If price >moderate and <=hgher; assign Ranking = 3
+Else assign Ranking = 4 for conditions outside of the stated conditions.
+Print diamond to check values in Ranking in the dataset
+```{r}
+diamond$Ranking <- ifelse(diamond$price > 0 & diamond$price <= lowest, "1", ifelse(diamond$price > lowest & diamond$price <= moderate, "2", ifelse(diamond$price > moderate & diamond$price <= higher, "3", "4")))
+```
+The order of the dataset in random. We need to order the dataset by Ranking from lowest to highest based on 1-4 in the dataset and then plot values. We create a newdiamond_data dataset
+```{r}
+newdiamond_data <- diamond[order(diamond$price),]
+```
+Use ggplot to plot this dataset
+```{r}
+ggplot(newdiamond_data, aes(newdiamond_data$Ranking, fill = cut)) + geom_bar()
+```
+
+Adding Labels to X-axis, Y-Axis and Title to Graph 
+```{r}
+ggplot(newdiamond_data, aes(newdiamond_data$Ranking, fill = cut)) + geom_bar() + ggtitle("Diamonds:Price Ranking By Cut") + labs(x = "Price Ranking", y = "Count")
+```
+Replace Y axis labels from 1,2,3,4 to lowest, moderate, higher and expensive
+```{r}
+ggplot(newdiamond_data, aes(newdiamond_data$Ranking, fill = cut)) + geom_bar() + ggtitle("Diamonds:Price Ranking By Cut") + labs(x = "Price Ranking", y = "Count") + scale_x_discrete(breaks = 1:4, labels = c("lowest", "moderate", "higher", "expensive"))
+```
+
+Description: Write an RMarkdown file and use it to generate a knitted HTML file that includes a bar plot of the count of observations in the data set showing price ranking by cut, where price ranking is defined as price:
+◦ up to the 15th percentile: Lowest
+◦ 16th to the 30th percentile: Moderate ◦ 31st to the 75th percentile: Higher
+◦ above 75th percentile: Expensive
+
+
+Program Steps: 
+1. Read the tab delimited file into a "diamond" dataset. This file is located in the same directory as the rmd file. Hence, we do not need to hardcode the file path for reading the file, but the root directory contains the rmd as well as the tsv file, hence it can be read in directly. 
+2. Next, we define categories for grouping the diamonds based on price in order to determine ranking as suggested in the question. We define 3 groups: lowest, moderate, higher and all others not falling in either of the 3 defined buckets, are binned in "expensive". 
+3. We add a column "Ranking" to this diamond dataset, which will determine the ranking of each diamond data. Each record in this diamond dataset will be assigned a label - 1,2,3 or 4 depending on the condition satisfied. 1 being representing "lowest" and 4 representing "expensive"
+4. This dataset is not ordered, hence the data will not be correctly represented in a plot. Hence, we need to order this entire dataset by ranking 1-4. We create a new dataset - newdiamond_data and order the dataset based on price from 1 through 4 (ascending)
+5. Apply ggplot on this newdiamond dataset. We need to modify labels on x and y axis, add title to the graph and also rename labels 1,2,3,4 with "lowest", "moderate", "higher" and "expensive".
+
+
